@@ -1,7 +1,11 @@
 <template>
   <v-app>
     <v-app-bar flat class="custom-navbar px-4">
-      <v-app-bar-title class="font-weight-bold">Gym Hub</v-app-bar-title>
+      <v-app-bar-title class="font-weight-bold">
+        <router-link to="/" style="text-decoration: none; color: inherit; cursor: pointer">
+          Gym Hub
+        </router-link>
+      </v-app-bar-title>
       <v-spacer></v-spacer>
       <v-btn to="/" variant="text" class="me-4 nav-btn">Početna</v-btn>
       <v-btn to="/treneri" variant="text" class="me-4 nav-btn">Treneri</v-btn>
