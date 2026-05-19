@@ -122,17 +122,14 @@ onMounted(() => {
   padding: 12px !important;
 }
 
-/* Hover efekt za redove */
 .table-row:hover {
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-/* Suptilni zeleni okvir za pakete */
 .border-green-subtle {
   border: 1px solid rgba(76, 175, 80, 0.4) !important;
 }
 
-/* Stil za paginaciju */
 :deep(.v-pagination__item) {
   color: white !important;
 }

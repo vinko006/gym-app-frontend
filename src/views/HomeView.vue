@@ -91,7 +91,6 @@ const dialog = ref(false)
 const paketi = ref([])
 const treneriRaw = ref([])
 
-// Novi objekt za statistiku koji povlači sve odjednom
 const statistika = ref({
   broj_clanova: 0,
   broj_trenera: 0,
@@ -116,11 +115,9 @@ const treneriOpcije = computed(() => {
 
 const dohvatiPodatke = async () => {
   try {
-    // 1. Dohvaćamo novu statistiku za dashboard
     const resStat = await axios.get('http://127.0.0.1:5000/dashboard-statistika')
     statistika.value = resStat.data
 
-    // 2. Dohvaćamo opcije za formu (paketi i treneri)
     const [resTreneri, resPaketi] = await Promise.all([
       axios.get('http://127.0.0.1:5000/treneri'),
       axios.get('http://127.0.0.1:5000/paketi')
@@ -141,7 +138,7 @@ const spremiClana = async () => {
     await axios.post('http://127.0.0.1:5000/clanovi', noviClan.value);
     dialog.value = false;
     noviClan.value = { ime: '', prezime: '', paket_id: null, trener_id: null };
-    await dohvatiPodatke(); // Osvježi brojeve na dashboardu
+    await dohvatiPodatke();
     alert("Novi član je uspješno dodan!");
   } catch (error) {
     console.error("Greška pri spremanju:", error);
@@ -154,7 +151,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Zadržavamo tvoj stil pozadine i gumba */
 :global(.v-application__wrap) {
   background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)),
                     url('@/assets/pozadina.jpg') !important;

@@ -28,7 +28,7 @@
 </template>
 
 <style>
-/* Stil za navbar prozirnost, zamućenje */
+
 .custom-navbar {
   background-color: rgba(0, 0, 0, 0.3) !important;
   backdrop-filter: blur(12px) !important;
@@ -37,13 +37,13 @@
   color: white !important;
 }
 
-/* Radi da gumbi u navbaru uvijek čitljivi */
+
 .nav-btn {
   font-weight: 500 !important;
   color: white !important;
 }
 
-/* VAŽNO: Ovo osigurava da cijela aplikacija nema defaultnu sivu pozadinu */
+
 .v-application {
   background: none !important;
 }

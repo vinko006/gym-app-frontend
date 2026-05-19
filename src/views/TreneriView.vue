@@ -95,7 +95,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Glavni stakleni efekt za karticu */
 .stakleni-okvir {
   border: 1px solid white !important;
   background-color: rgba(0, 0, 0, 0.7) !important;
@@ -103,7 +102,6 @@ onMounted(() => {
   -webkit-backdrop-filter: blur(15px);
 }
 
-/* Stilovi za prozirnu tablicu */
 .custom-table {
   background: transparent !important;
 }
@@ -124,17 +122,14 @@ onMounted(() => {
   padding: 15px !important;
 }
 
-/* Hover efekt za redove u tablici */
 .table-row:hover {
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-/* Suptilni okvir za chipove */
 .border-white-subtle {
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Prilagodba paginacije da se vidi na tamnoj pozadini */
 :deep(.v-pagination__item) {
   color: white !important;
 }

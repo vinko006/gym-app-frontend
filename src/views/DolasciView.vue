@@ -84,7 +84,7 @@ const clanovi = ref([])
 const stranica = ref(1)
 const noviDolazak = ref({ clan_id: null, napomena: '' })
 
-// Logika za paginaciju (10 po stranici)
+// Paginacija (10 po stranici)
 const brojStranica = computed(() => Math.ceil(dolasci.value.length / 10))
 const prikazaniDolasci = computed(() => {
   const start = (stranica.value - 1) * 10
@@ -95,7 +95,6 @@ const prikazaniDolasci = computed(() => {
 const ucitajPodatke = async () => {
   try {
     const resDolasci = await axios.get('http://127.0.0.1:5000/dolasci')
-    // Poredaj dolaske tako da najnoviji budu prvi
     dolasci.value = resDolasci.data.reverse()
 
     const resClanovi = await axios.get('http://127.0.0.1:5000/clanovi')
@@ -124,7 +123,6 @@ onMounted(ucitajPodatke)
 </script>
 
 <style scoped>
-/* Glavni kontejner za tablicu - Crna pozadina s bijelim rubom */
 .table-container {
   background-color: black !important;
   border: 1px solid white !important;
@@ -132,7 +130,6 @@ onMounted(ucitajPodatke)
   overflow: hidden;
 }
 
-/* Naslov unutar tablice */
 .table-header {
   text-align: center;
   color: white;
@@ -141,7 +138,6 @@ onMounted(ucitajPodatke)
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Stil same tablice */
 .gym-table {
   background-color: black !important;
 }
