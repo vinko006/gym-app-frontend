@@ -1,0 +1,157 @@
+/* --- 1. OSNOVNE BOJE I FONTOVI --- */
+:root {
+  --font-heading: "Roboto", sans-serif;
+  --font-body: "Roboto", sans-serif;
+
+  --color-background: #121212;
+  --color-surface: rgba(6, 6, 6, 0.85); /* Tamna prozirna pozadina */
+  --color-text: #ffffff;
+}
+
+/* --- 2. GLAVNI WRAPPER (Zajednički za pregled sustava i tablicu) --- */
+.glavni-sadrzaj-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px; /* Ovo drži širinu tablice točno kao na slici 2 */
+  margin: 0 auto;   /* Prirodno centriranje */
+  box-sizing: border-box;
+  margin-left: 425px;
+  margin-top: 50px;
+}
+
+/* --- 3. STAKLENI KONTEJNERI (Zajednički stil za traku i tablicu) --- */
+.pregled-sustava-kontejner,
+.stakleni-kontejner {
+  background: var(--color-surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 16px !important;
+  padding: 32px 40px;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  width: 100% !important;
+  box-sizing: border-box;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+}
+
+.pregled-sustava-kontejner {
+  margin-bottom: 30px; /* Razmak koji treba samo gornjoj traci */
+}
+
+/* Naslovi */
+.glavni-naslov {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 52px;
+  text-align: center;
+}
+
+.uppercase-title {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: var(--font-heading);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* --- 4. RED S KARTICAMA I STATISTIKA --- */
+.kartice-red {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.statistika-kartica {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.statistika-kartica h3,
+.statistika-kartica .naslov {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.statistika-kartica p,
+.statistika-kartica .broj {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  margin: 0;
+}
+
+.statistika-kartica img,
+.statistika-kartica svg,
+.statistika-kartica .v-icon,
+.statistika-kartica i {
+  font-size: 32px !important;
+  margin-bottom: 4px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Omotač za gumb */
+.gumb-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* --- 5. VUETIFY TABLICA I REDOVI --- */
+.custom-table {
+  background: transparent !important;
+  width: 100% !important;
+}
+
+:deep(.v-table__wrapper) {
+  background: transparent !important;
+}
+
+:deep(th) {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px !important;
+}
+
+:deep(td) {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 14px !important;
+}
+
+.table-row:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  transition: background-color 0.2s ease;
+}
+
+/* --- 6. PAGINACIJA --- */
+:deep(.v-pagination__item) {
+  color: #ffffff !important;
+}
+
+:deep(.v-pagination__btn) {
+  color: #ffffff !important;
+}
+
+:deep(.v-pagination__item--isActive) {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}

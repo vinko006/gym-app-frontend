@@ -1,83 +1,122 @@
 <template>
-  <v-card
-    variant="outlined"
-    class="mx-auto rounded-xl stakleni-okvir"
-    max-width="900"
-  >
-    <v-card-title class="text-center py-6 text-white text-uppercase font-weight-bold text-h5">
-      Popis Trenera
-    </v-card-title>
+  <div class="glavni-sadrzaj-wrapper">
 
-    <v-table class="mx-auto mt-2 custom-table">
-      <thead>
-        <tr>
-          <th class="text-center text-grey-lighten-1">#</th>
-          <th class="text-center text-white">Ime i Prezime</th>
-          <th class="text-center text-white">Specijalnost</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(trener, index) in prikazaniTreneri" :key="trener.id" class="table-row">
-          <td class="text-center text-grey-lighten-1">{{ (page - 1) * itemPerPage + index + 1 }}.</td>
+    <v-card elevation="5" class="stakleni-kontejner">
 
-          <td class="text-center font-weight-bold text-white">
-            <div class="d-flex align-center justify-center">
-              <v-icon size="small" color="blue-lighten-3" class="mr-2">mdi-account-star</v-icon>
-              {{ trener.ime }} {{ trener.prezime }}
-            </div>
-          </td>
+      <v-card-title class="text-center py-5 text-white font-weight-bold uppercase-title">
+        Popis Trenera
+      </v-card-title>
 
-          <td class="text-center">
-            <v-chip
-              color="rgba(255, 255, 255, 0.1)"
-              size="small"
-              label
-              variant="flat"
-              class="text-white border-white-subtle"
-            >
-              {{ trener.specijalnost }}
-            </v-chip>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+      <div class="px-4 pt-4">
+        <v-text-field
+          v-model="searchQuery"
+          prepend-inner-icon="mdi-magnify"
+          label="Pretraži trenera po imenu, prezimenu ili specijalnosti..."
+          variant="outlined"
+          color="white"
+          density="comfortable"
+          clearable
+          class="text-white"
+        ></v-text-field>
+      </div>
 
-    <v-divider color="white" style="opacity: 0.1"></v-divider>
+      <v-table hover class="custom-table">
+        <thead>
+          <tr>
+            <th class="text-center text-white font-weight-bold">#</th>
+            <th class="text-center text-white font-weight-bold">Ime i Prezime</th>
+            <th class="text-center text-white font-weight-bold">Specijalnost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(trener, index) in filtriraniPrikazaniTreneri" :key="trener.id" class="table-row">
+            <td class="text-center text-white">{{ (page - 1) * itemPerPage + index + 1 }}.</td>
 
-    <div class="text-center py-4">
-      <v-pagination
-        v-model="page"
-        :length="ukupnoStranica"
-        rounded="circle"
-        density="comfortable"
-        active-color="white"
-        color="grey-lighten-1"
-      ></v-pagination>
-    </div>
+            <td class="text-center text-white">
+              <div class="d-flex align-center justify-center">
+                <v-icon size="small" color="white" class="mr-2">mdi-account-star</v-icon>
+                {{ trener.ime }} {{ trener.prezime }}
+              </div>
+            </td>
 
-    <v-card-text v-if="treneri.length === 0" class="text-center pa-10 text-white">
-      <v-progress-circular indeterminate color="white"></v-progress-circular>
-      <div class="mt-2">Učitavam trenere...</div>
-    </v-card-text>
-  </v-card>
+            <td class="text-center">
+              <v-chip
+                color="indigo-lighten-4"
+                size="small"
+                variant="tonal"
+              >
+                {{ trener.specijalnost }}
+              </v-chip>
+            </td>
+          </tr>
+
+          <tr v-if="filtriraniPrikazaniTreneri.length === 0 && treneri.length > 0">
+            <td colspan="3" class="text-center text-grey-lighten-1 py-6">
+              Nema trenera koji odgovaraju pretrazi "{{ searchQuery }}"
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+
+      <v-divider class="border-opacity-15"></v-divider>
+
+      <div class="text-center py-4">
+        <v-pagination
+          v-model="page"
+          :length="ukupnoStranica"
+          rounded="circle"
+          density="comfortable"
+          color="white"
+        ></v-pagination>
+      </div>
+
+      <v-card-text v-if="treneri.length === 0" class="text-center pa-10">
+        <v-progress-circular indeterminate color="green"></v-progress-circular>
+        <div class="mt-2 text-white">Učitavam trenere...</div>
+      </v-card-text>
+    </v-card>
+
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
 
 const treneri = ref([])
 const page = ref(1)
-const itemPerPage = 10
+const itemPerPage = 10 // Ovdje je obična varijabla (nije ref, pa joj u scriptu ne treba .value)
 
-const prikazaniTreneri = computed(() => {
-  const start = (page.value - 1) * itemPerPage
-  const end = start + itemPerPage
-  return treneri.value.slice(start, end)
+const searchQuery = ref('')
+
+// Kada profesor upiše nešto u tražilicu, automatski vraćamo paginaciju na 1. stranicu
+watch(searchQuery, () => {
+  page.value = 1
 })
 
+// 1. Prvo filtriramo trenere prema upitu iz tražilice
+const filtriraniTreneri = computed(() => {
+  if (!searchQuery.value) {
+    return treneri.value
+  }
+  const query = searchQuery.value.toLowerCase().trim()
+  return treneri.value.filter(trener => {
+    const punoIme = `${trener.ime} ${trener.prezime}`.toLowerCase()
+    const specijalnost = (trener.specijalnost || '').toLowerCase()
+    return punoIme.includes(query) || specijalnost.includes(query)
+  })
+})
+
+// 2. Primjenjujemo paginaciju isključivo na filtrirane rezultate
+const filtriraniPrikazaniTreneri = computed(() => {
+  const start = (page.value - 1) * itemPerPage
+  const end = start + itemPerPage
+  return filtriraniTreneri.value.slice(start, end)
+})
+
+// 3. Ukupan broj stranica računamo dinamički na temelju filtriranih rezultata
 const ukupnoStranica = computed(() => {
-  return Math.ceil(treneri.value.length / itemPerPage)
+  return Math.ceil(filtriraniTreneri.value.length / itemPerPage) || 1
 })
 
 const dohvatiTrenere = async () => {

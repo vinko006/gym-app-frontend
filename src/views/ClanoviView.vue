@@ -1,81 +1,131 @@
 <template>
-  <v-card elevation="5" class="mx-auto rounded-lg stakleni-okvir" max-width="750">
-    <v-card-title class="text-center py-4 bg-green-darken-3 text-white">
-      POPIS ČLANOVA TERETANE
-    </v-card-title>
+  <div class="glavni-sadrzaj-wrapper">
 
-    <v-table hover class="mx-auto mt-5 rounded-lg border-0 stakleni-okvir" style="max-width: 1000px;">
-      <thead>
-        <tr>
-          <th class="text-center">#</th>
-          <th class="text-center">Član</th>
-          <th class="text-center">Dodijeljeni Trener</th>
-          <th class="text-center">Odabrani Paket</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(clan, index) in prikazaniClanovi" :key="clan.id">
-          <td class="text-center">{{ (page - 1) * itemPerPage + index + 1 }}.</td>
-          <td class="text-center">{{ clan.ime }} {{ clan.prezime }}</td>
+    <v-card elevation="5" class="stakleni-kontejner">
+      <v-card-title class="text-center py-5 text-white font-weight-bold uppercase-title">
+        POPIS ČLANOVA TERETANE
+      </v-card-title>
 
-          <td class="text-center">
-            <v-chip v-if="clan.trener !== 'Samostalan trening'" color="indigo" size="small" variant="tonal">
-              {{ clan.trener }}
-            </v-chip>
-            <span v-else class="text-grey italic">Bez trenera</span>
-          </td>
+      <div class="px-4 pt-4">
+        <v-text-field
+          v-model="searchQuery"
+          prepend-inner-icon="mdi-magnify"
+          label="Pretraži člana po imenu, treneru ili paketu..."
+          variant="outlined"
+          color="white"
+          density="comfortable"
+          clearable
+          class="text-white"
+        ></v-text-field>
+      </div>
 
-          <td class="text-center">
-            <v-chip
-              v-if="clan.paket !== 'Nema paketa'"
-              color="success"
-              size="small"
-              label
-            >
-              {{ clan.paket }}
-            </v-chip>
-            <v-chip v-else color="error" size="small" variant="outlined" label>
-              Nema paketa
-            </v-chip>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+      <v-table hover class="custom-table">
+        <thead>
+          <tr>
+            <th class="text-center text-white font-weight-bold">#</th>
+            <th class="text-center text-white font-weight-bold">Član</th>
+            <th class="text-center text-white font-weight-bold">Dodijeljeni Trener</th>
+            <th class="text-center text-white font-weight-bold">Odabrani Paket</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(clan, index) in filtriraniPrikazaniClanovi" :key="clan.id" class="table-row">
+            <td class="text-center text-white">{{ (page - 1) * itemPerPage + index + 1 }}.</td>
+            <td class="text-center text-white">{{ clan.ime }} {{ clan.prezime }}</td>
 
-    <v-divider></v-divider>
-    <div class="text-center py-4">
-      <v-pagination
-        v-model="page"
-        :length="ukupnoStranica"
-        rounded="circle"
-        density="comfortable"
-        color="green-darken-3"
-      ></v-pagination>
-    </div>
+            <td class="text-center">
+              <v-chip v-if="clan.trener !== 'Samostalan trening'" color="indigo-lighten-3" size="small" variant="tonal">
+                {{ clan.trener }}
+              </v-chip>
+              <span v-else class="text-grey italic">Bez trenera</span>
+            </td>
 
-    <v-card-text v-if="clanovi.length === 0" class="text-center pa-10">
-      <v-progress-circular indeterminate color="green"></v-progress-circular>
-      <div class="mt-2">Dohvaćam listu članova...</div>
-    </v-card-text>
-  </v-card>
+            <td class="text-center">
+              <v-chip
+                v-if="clan.paket !== 'Nema paketa'"
+                color="success"
+                size="small"
+                label
+              >
+                {{ clan.paket }}
+              </v-chip>
+              <v-chip v-else color="error" size="small" variant="outlined" label>
+                Nema paketa
+              </v-chip>
+            </td>
+          </tr>
+
+          <tr v-if="filtriraniPrikazaniClanovi.length === 0 && clanovi.length > 0">
+            <td colspan="4" class="text-center text-grey-lighten-1 py-6">
+              Nema članova koji odgovaraju pretrazi "{{ searchQuery }}"
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+
+      <v-divider class="border-opacity-15"></v-divider>
+
+      <div class="text-center py-4">
+        <v-pagination
+          v-model="page"
+          :length="ukupnoStranica"
+          rounded="circle"
+          density="comfortable"
+          color="white"
+        ></v-pagination>
+      </div>
+
+      <v-card-text v-if="clanovi.length === 0" class="text-center pa-10">
+        <v-progress-circular indeterminate color="green"></v-progress-circular>
+        <div class="mt-2 text-white">Dohvaćam listu članova...</div>
+      </v-card-text>
+    </v-card>
+
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
 
 const clanovi = ref([])
 const page = ref(1)
 const itemPerPage = 10
 
-const prikazaniClanovi = computed(() => {
-  const start = (page.value - 1) * itemPerPage
-  const end = start + itemPerPage
-  return clanovi.value.slice(start, end)
+const searchQuery = ref('')
+
+// Kada se upiše pojam u tražilicu, vraćamo korisnika na 1. stranicu paginacije
+watch(searchQuery, () => {
+  page.value = 1
 })
 
+// 1. Duboko filtriranje baze članova prema više parametara odjednom
+const filtriraniClanovi = computed(() => {
+  if (!searchQuery.value) {
+    return clanovi.value
+  }
+  const query = searchQuery.value.toLowerCase().trim()
+  return clanovi.value.filter(clan => {
+    const punoIme = `${clan.ime} ${clan.prezime}`.toLowerCase()
+    const trener = (clan.trener || '').toLowerCase()
+    const paket = (clan.paket || '').toLowerCase()
+
+    return punoIme.includes(query) ||
+           trener.includes(query) ||
+           paket.includes(query)
+  })
+})
+
+// 2. Rezanje rezultata za paginaciju (isključivo na temelju filtriranog skupa)
+const filtriraniPrikazaniClanovi = computed(() => {
+  const start = (page.value - 1) * itemPerPage
+  const end = start + itemPerPage
+  return filtriraniClanovi.value.slice(start, end)
+})
+
+// 3. Dinamički izračun broja stranica ovisno o rezultatima pretrage
 const ukupnoStranica = computed(() => {
-  return Math.ceil(clanovi.value.length / itemPerPage)
+  return Math.ceil(filtriraniClanovi.value.length / itemPerPage) || 1
 })
 
 const dohvatiClanove = async () => {

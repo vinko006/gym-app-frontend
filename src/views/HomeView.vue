@@ -27,59 +27,55 @@
       </v-card>
     </v-dialog>
 
-    <v-row justify="center" class="mt-8">
-      <v-col cols="12" md="11" lg="10">
-        <v-card
-          theme="dark"
-          variant="outlined"
-          class="pa-8 rounded-xl"
-          style="border: 1px solid white !important; background-color: rgba(0, 0, 0, 0.7) !important; backdrop-filter: blur(10px);"
-        >
-          <div class="text-center mb-10">
-            <h1 class="text-h4 font-weight-bold text-white">Pregled Sustava</h1>
+    <div class="glavni-sadrzaj-wrapper">
+
+      <div class="pregled-sustava-kontejner">
+
+        <h1 class="glavni-naslov">Pregled Sustava</h1>
+
+        <div class="kartice-red">
+
+          <div class="statistika-kartica">
+            <v-icon size="32" color="white" icon="mdi-account-group"></v-icon>
+            <h3 class="naslov">UKUPNO ČLANOVA</h3>
+            <p class="broj">{{ statistika.broj_clanova }}</p>
           </div>
 
-          <v-row justify="center" align="start">
-            <v-col cols="12" sm="6" md="3" class="text-center mb-6">
-              <v-icon size="50" color="green-lighten-2" icon="mdi-account-group" class="mb-2"></v-icon>
-              <div class="text-overline text-grey-lighten-1">UKUPNO ČLANOVA</div>
-              <div class="text-h3 font-weight-black text-green">{{ statistika.broj_clanova }}</div>
-            </v-col>
+          <div class="statistika-kartica">
+            <v-icon size="32" color="white" icon="mdi-account-star"></v-icon>
+            <h3 class="naslov">AKTIVNI TRENERI</h3>
+            <p class="broj">{{ statistika.broj_trenera }}</p>
+          </div>
 
-            <v-col cols="12" sm="6" md="3" class="text-center mb-6">
-              <v-icon size="50" color="blue-lighten-2" icon="mdi-account-star" class="mb-2"></v-icon>
-              <div class="text-overline text-grey-lighten-1">AKTIVNI TRENERI</div>
-              <div class="text-h3 font-weight-black text-blue">{{ statistika.broj_trenera }}</div>
-            </v-col>
+          <div class="statistika-kartica">
+            <v-icon size="32" color="white" icon="mdi-currency-eur"></v-icon>
+            <h3 class="naslov">UKUPNA ZARADA</h3>
+            <p class="broj">{{ statistika.ukupna_zarada }}€</p>
+          </div>
 
-            <v-col cols="12" sm="6" md="3" class="text-center mb-6">
-              <v-icon size="50" color="yellow-darken-2" icon="mdi-currency-eur" class="mb-2"></v-icon>
-              <div class="text-overline text-grey-lighten-1">UKUPNA ZARADA</div>
-              <div class="text-h3 font-weight-black text-yellow-darken-2">{{ statistika.ukupna_zarada }}€</div>
-            </v-col>
+          <div class="statistika-kartica">
+            <v-icon size="32" color="white" icon="mdi-run-fast"></v-icon>
+            <h3 class="naslov">DOLASCI DANAS</h3>
+            <p class="broj">{{ statistika.dolasci_danas }}</p>
+          </div>
 
-            <v-col cols="12" sm="6" md="3" class="text-center mb-6">
-              <v-icon size="50" color="red-lighten-1" icon="mdi-run-fast" class="mb-2"></v-icon>
-              <div class="text-overline text-grey-lighten-1">DOLASCI DANAS</div>
-              <div class="text-h3 font-weight-black text-red-lighten-1">{{ statistika.dolasci_danas }}</div>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-col>
-    </v-row>
+        </div>
+      </div>
 
-    <v-row justify="center" class="mt-10">
-      <v-btn
-        variant="outlined"
-        color="white"
-        size="x-large"
-        prepend-icon="mdi-plus"
-        class="custom-btn-frame px-10 py-6"
-        @click="dialog = true"
-      >
-        Postani Član
-      </v-btn>
-    </v-row>
+      <div class="gumb-wrapper">
+        <v-btn
+          variant="outlined"
+          color="white"
+          size="x-large"
+          prepend-icon="mdi-plus"
+          class="custom-btn-frame px-10 py-6"
+          @click="dialog = true"
+        >
+          Postani Član
+        </v-btn>
+      </div>
+
+    </div>
   </v-container>
 </template>
 
@@ -172,5 +168,13 @@ onMounted(() => {
   background-color: white !important;
   color: black !important;
   transform: scale(1.05);
+}
+
+/* Dodatni mali popravak za naslov unutar ove komponente */
+.glavni-naslov {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 20px;
 }
 </style>
