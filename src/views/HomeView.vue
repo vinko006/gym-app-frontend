@@ -3,21 +3,22 @@
     <v-dialog v-model="dialog" max-width="500px">
       <v-card class="rounded-lg" theme="dark" color="#1e1e1e">
         <v-card-title class="text-center py-4 bg-green-darken-3 text-white">
+          <v-icon icon="mdi-account-plus" class="mr-2"></v-icon>
           UPIS NOVOG ČLANA
         </v-card-title>
         <v-card-text class="pa-6">
           <v-form ref="form">
             <p class="text-caption text-grey-lighten-1 mb-1 ml-1">Ime člana</p>
-            <v-text-field v-model="noviClan.ime" variant="outlined" bg-color="#2a2a2a" density="compact" color="green" class="mb-4" hide-details autocomplete="off"></v-text-field>
+            <v-text-field v-model="noviClan.ime" prepend-inner-icon="mdi-account-outline" variant="outlined" bg-color="#2a2a2a" density="compact" color="green" class="mb-4" hide-details autocomplete="off"></v-text-field>
 
             <p class="text-caption text-grey-lighten-1 mb-1 ml-1">Prezime člana</p>
-            <v-text-field v-model="noviClan.prezime" variant="outlined" bg-color="#2a2a2a" density="compact" color="green" class="mb-4" hide-details autocomplete="off"></v-text-field>
+            <v-text-field v-model="noviClan.prezime" prepend-inner-icon="mdi-account-outline" variant="outlined" bg-color="#2a2a2a" density="compact" color="green" class="mb-4" hide-details autocomplete="off"></v-text-field>
 
             <p class="text-caption text-grey-lighten-1 mb-1 ml-1">Paket članarine</p>
-            <v-select v-model="noviClan.paket_id" :items="paketi" item-title="naziv" item-value="id" variant="outlined" bg-color="#2a2a2a" color="green" class="mb-4" hide-details></v-select>
+            <v-select v-model="noviClan.paket_id" prepend-inner-icon="mdi-card-bulleted-outline" :items="paketi" item-title="naziv" item-value="id" variant="outlined" bg-color="#2a2a2a" color="green" class="mb-4" hide-details></v-select>
 
             <p class="text-caption text-grey-lighten-1 mb-1 ml-1">Trener</p>
-            <v-select v-model="noviClan.trener_id" :items="treneriOpcije" item-title="prikaz" item-value="id" variant="outlined" bg-color="#2a2a2a" color="green" class="mb-4" hide-details></v-select>
+            <v-select v-model="noviClan.trener_id" prepend-inner-icon="mdi-dumbbell" :items="treneriOpcije" item-title="prikaz" item-value="id" variant="outlined" bg-color="#2a2a2a" color="green" class="mb-4" hide-details></v-select>
           </v-form>
         </v-card-text>
         <v-card-actions class="pa-4 justify-end">
@@ -31,7 +32,10 @@
 
       <div class="pregled-sustava-kontejner">
 
-        <h1 class="glavni-naslov">Pregled Sustava</h1>
+        <h1 class="glavni-naslov">
+          <v-icon icon="mdi-chart-timeline-variant" class="mr-3" size="large"></v-icon>
+          Pregled Sustava
+        </h1>
 
         <div class="kartice-red">
 

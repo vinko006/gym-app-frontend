@@ -3,6 +3,7 @@
 
     <v-card elevation="5" class="stakleni-kontejner">
       <v-card-title class="text-center py-5 text-white font-weight-bold uppercase-title">
+        <v-icon icon="mdi-account-outline" class="mr-2"></v-icon>
         POPIS ČLANOVA TERETANE
       </v-card-title>
 
