@@ -76,6 +76,24 @@
       </div>
 
     </div>
+
+    <v-snackbar
+      v-model="snackbar.prikazi"
+      :color="snackbar.boja"
+      :timeout="3000"
+      location="top right"
+    >
+      {{ snackbar.tekst }}
+
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar.prikazi = false"
+        >
+          Zatvori
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -86,6 +104,18 @@ import axios from 'axios'
 const dialog = ref(false)
 const paketi = ref([])
 const treneriRaw = ref([])
+
+const snackbar = ref({
+  prikazi: false,
+  tekst: '',
+  boja: 'success'
+})
+
+const prikaziObavijest = (poruka, tipBoje = 'success') => {
+  snackbar.value.tekst = poruka
+  snackbar.value.boja = tipBoje
+  snackbar.value.prikazi = true
+}
 
 const statistika = ref({
   broj_clanova: 0,
@@ -127,7 +157,8 @@ const dohvatiPodatke = async () => {
 
 const spremiClana = async () => {
   if (!noviClan.value.ime || !noviClan.value.prezime || !noviClan.value.paket_id) {
-    alert("Molimo ispunite ime, prezime i odaberite paket!");
+    // Snackbar umjesto alerta
+    prikaziObavijest("Molimo ispunite ime, prezime i odaberite paket!", "error")
     return;
   }
   try {
@@ -135,9 +166,11 @@ const spremiClana = async () => {
     dialog.value = false;
     noviClan.value = { ime: '', prezime: '', paket_id: null, trener_id: null };
     await dohvatiPodatke();
-    alert("Novi član je uspješno dodan!");
+    // Snackbar umjesto običnog alerta
+    prikaziObavijest("Novi član je uspješno dodan!", "success")
   } catch (error) {
     console.error("Greška pri spremanju:", error);
+    prikaziObavijest("Došlo je do pogreške prilikom spremanja člana.", "error")
   }
 }
 
@@ -170,7 +203,6 @@ onMounted(() => {
   transform: scale(1.05);
 }
 
-/* Dodatni mali popravak za naslov unutar ove komponente */
 .glavni-naslov {
   font-size: 28px;
   font-weight: bold;

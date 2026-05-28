@@ -29,12 +29,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(clan, index) in filtriraniPrikazaniClanovi" :key="clan.id" class="table-row">
+          <tr v-for="(clan, index) in clanovi" :key="clan.id" class="table-row">
             <td class="text-center text-white">{{ (page - 1) * itemPerPage + index + 1 }}.</td>
             <td class="text-center text-white">{{ clan.ime }} {{ clan.prezime }}</td>
 
             <td class="text-center">
-              <v-chip v-if="clan.trener !== 'Samostalan trening'" color="indigo-lighten-3" size="small" variant="tonal">
+              <v-chip v-if="clan.trener !== 'Samostalan trening' && clan.trener !== 'Nema trenera'" color="indigo-lighten-3" size="small" variant="tonal">
                 {{ clan.trener }}
               </v-chip>
               <span v-else class="text-grey italic">Bez trenera</span>
@@ -42,7 +42,7 @@
 
             <td class="text-center">
               <v-chip
-                v-if="clan.paket !== 'Nema paketa'"
+                v-if="clan.paket !== 'Nema paketa' && clan.paket !== 'Bez paketa'"
                 color="success"
                 size="small"
                 label
@@ -55,9 +55,9 @@
             </td>
           </tr>
 
-          <tr v-if="filtriraniPrikazaniClanovi.length === 0 && clanovi.length > 0">
+          <tr v-if="clanovi.length === 0 && !loading">
             <td colspan="4" class="text-center text-grey-lighten-1 py-6">
-              Nema članova koji odgovaraju pretrazi "{{ searchQuery }}"
+              Nema članova koji odgovaraju pretrazi.
             </td>
           </tr>
         </tbody>
@@ -68,14 +68,14 @@
       <div class="text-center py-4">
         <v-pagination
           v-model="page"
-          :length="ukupnoStranica"
+          :length="totalPages"
           rounded="circle"
           density="comfortable"
           color="white"
         ></v-pagination>
       </div>
 
-      <v-card-text v-if="clanovi.length === 0" class="text-center pa-10">
+      <v-card-text v-if="loading" class="text-center pa-10">
         <v-progress-circular indeterminate color="green"></v-progress-circular>
         <div class="mt-2 text-white">Dohvaćam listu članova...</div>
       </v-card-text>
@@ -85,57 +85,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 const clanovi = ref([])
 const page = ref(1)
 const itemPerPage = 10
-
+const totalPages = ref(1) // Backend će nam slati ukupan broj stranica
 const searchQuery = ref('')
+const loading = ref(false)
 
-// Kada se upiše pojam u tražilicu, vraćamo korisnika na 1. stranicu paginacije
-watch(searchQuery, () => {
-  page.value = 1
-})
-
-// 1. Duboko filtriranje baze članova prema više parametara odjednom
-const filtriraniClanovi = computed(() => {
-  if (!searchQuery.value) {
-    return clanovi.value
-  }
-  const query = searchQuery.value.toLowerCase().trim()
-  return clanovi.value.filter(clan => {
-    const punoIme = `${clan.ime} ${clan.prezime}`.toLowerCase()
-    const trener = (clan.trener || '').toLowerCase()
-    const paket = (clan.paket || '').toLowerCase()
-
-    return punoIme.includes(query) ||
-           trener.includes(query) ||
-           paket.includes(query)
-  })
-})
-
-// 2. Rezanje rezultata za paginaciju (isključivo na temelju filtriranog skupa)
-const filtriraniPrikazaniClanovi = computed(() => {
-  const start = (page.value - 1) * itemPerPage
-  const end = start + itemPerPage
-  return filtriraniClanovi.value.slice(start, end)
-})
-
-// 3. Dinamički izračun broja stranica ovisno o rezultatima pretrage
-const ukupnoStranica = computed(() => {
-  return Math.ceil(filtriraniClanovi.value.length / itemPerPage) || 1
-})
-
+// Glavna funkcija za dohvaćanje članova sa backenda
 const dohvatiClanove = async () => {
+  loading.value = true
   try {
-    const response = await axios.get('http://127.0.0.1:5000/clanovi')
-    clanovi.value = response.data
+    const response = await axios.get('http://127.0.0.1:5000/clanovi', {
+      params: {
+        page: page.value,
+        per_page: itemPerPage,
+        search: searchQuery.value
+      }
+    })
+    clanovi.value = response.data.clanovi
+    totalPages.value = response.data.ukupnoStranica
   } catch (error) {
     console.error("Greška pri dohvaćanju članova:", error)
+  } finally {
+    loading.value = false
   }
 }
+
+watch(searchQuery, () => {
+  page.value = 1
+  dohvatiClanove()
+})
+
+watch(page, () => {
+  dohvatiClanove()
+})
 
 onMounted(() => {
   dohvatiClanove()

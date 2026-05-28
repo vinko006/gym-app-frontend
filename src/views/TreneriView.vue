@@ -29,7 +29,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(trener, index) in filtriraniPrikazaniTreneri" :key="trener.id" class="table-row">
+          <tr v-for="(trener, index) in treneri" :key="trener.id" class="table-row">
             <td class="text-center text-white">{{ (page - 1) * itemPerPage + index + 1 }}.</td>
 
             <td class="text-center text-white">
@@ -40,93 +40,83 @@
             </td>
 
             <td class="text-center">
-              <v-chip
-                color="indigo-lighten-4"
-                size="small"
-                variant="tonal"
-              >
+              <v-chip color="indigo-lighten-4" size="small" variant="tonal">
                 {{ trener.specijalnost }}
               </v-chip>
             </td>
           </tr>
 
-          <tr v-if="filtriraniPrikazaniTreneri.length === 0 && treneri.length > 0">
+          <tr v-if="treneri.length === 0 && !loading">
             <td colspan="3" class="text-center text-grey-lighten-1 py-6">
-              Nema trenera koji odgovaraju pretrazi "{{ searchQuery }}"
+              Nema trenera koji odgovaraju pretrazi.
             </td>
           </tr>
+
+          <div class="text-center py-4">
+            <v-pagination
+              v-model="page"
+              :length="totalPages"
+              rounded="circle"
+              density="comfortable"
+              color="white"
+            ></v-pagination>
+          </div>
+
+          <v-card-text v-if="loading" class="text-center pa-10">
+            <v-progress-circular indeterminate color="green"></v-progress-circular>
+            <div class="mt-2 text-white">Učitavam trenere...</div>
+          </v-card-text>
         </tbody>
       </v-table>
-
-      <v-divider class="border-opacity-15"></v-divider>
-
-      <div class="text-center py-4">
-        <v-pagination
-          v-model="page"
-          :length="ukupnoStranica"
-          rounded="circle"
-          density="comfortable"
-          color="white"
-        ></v-pagination>
-      </div>
-
-      <v-card-text v-if="treneri.length === 0" class="text-center pa-10">
-        <v-progress-circular indeterminate color="green"></v-progress-circular>
-        <div class="mt-2 text-white">Učitavam trenere...</div>
-      </v-card-text>
     </v-card>
 
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 const treneri = ref([])
 const page = ref(1)
-const itemPerPage = 10 // Ovdje je obična varijabla (nije ref, pa joj u scriptu ne treba .value)
-
+const itemPerPage = 10
+const totalPages = ref(1) // Backend će nam reći koliko ukupno ima stranica
 const searchQuery = ref('')
+const loading = ref(false) // Dodajemo loading stanje za bolji UX
 
-// Kada profesor upiše nešto u tražilicu, automatski vraćamo paginaciju na 1. stranicu
-watch(searchQuery, () => {
-  page.value = 1
-})
-
-// 1. Prvo filtriramo trenere prema upitu iz tražilice
-const filtriraniTreneri = computed(() => {
-  if (!searchQuery.value) {
-    return treneri.value
-  }
-  const query = searchQuery.value.toLowerCase().trim()
-  return treneri.value.filter(trener => {
-    const punoIme = `${trener.ime} ${trener.prezime}`.toLowerCase()
-    const specijalnost = (trener.specijalnost || '').toLowerCase()
-    return punoIme.includes(query) || specijalnost.includes(query)
-  })
-})
-
-// 2. Primjenjujemo paginaciju isključivo na filtrirane rezultate
-const filtriraniPrikazaniTreneri = computed(() => {
-  const start = (page.value - 1) * itemPerPage
-  const end = start + itemPerPage
-  return filtriraniTreneri.value.slice(start, end)
-})
-
-// 3. Ukupan broj stranica računamo dinamički na temelju filtriranih rezultata
-const ukupnoStranica = computed(() => {
-  return Math.ceil(filtriraniTreneri.value.length / itemPerPage) || 1
-})
-
+// Glavna funkcija za dohvaćanje podataka s backenda
 const dohvatiTrenere = async () => {
+  loading.value = true
   try {
-    const response = await axios.get('http://127.0.0.1:5000/treneri')
-    treneri.value = response.data
+    // Šaljemo parametre kao query string: ?page=1&search=nešto&per_page=10
+    const response = await axios.get('http://127.0.0.1:5000/treneri', {
+      params: {
+        page: page.value,
+        per_page: itemPerPage,
+        search: searchQuery.value
+      }
+    })
+
+    // Backend treba vratiti objekt koji sadrži listu trenera i ukupan broj stranica
+    treneri.value = response.data.treneri
+    totalPages.value = response.data.ukupnoStranica
   } catch (error) {
     console.error("Greška pri dohvaćanju trenera:", error)
+  } finally {
+    loading.value = false
   }
 }
+
+// Kada korisnik upiše nešto u tražilicu, vraćamo na 1. stranicu i povlačimo nove podatke
+watch(searchQuery, () => {
+  page.value = 1
+  dohvatiTrenere()
+})
+
+// Kada korisnik klikne na drugu stranicu u <v-pagination>, povlačimo podatke za tu stranicu
+watch(page, () => {
+  dohvatiTrenere()
+})
 
 onMounted(() => {
   dohvatiTrenere()
