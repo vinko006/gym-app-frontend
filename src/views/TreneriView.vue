@@ -8,20 +8,42 @@
         Popis Trenera
       </v-card-title>
 
-      <div class="px-4 pt-4">
-        <v-text-field
-          v-model="searchQuery"
-          prepend-inner-icon="mdi-magnify"
-          label="Pretraži trenera po imenu, prezimenu ili specijalnosti..."
-          variant="outlined"
-          color="white"
-          density="comfortable"
-          clearable
-          class="text-white"
-        ></v-text-field>
+      <v-row class="px-4 pt-4 ma-0">
+
+        <v-col cols="12" md="8" class="pa-1">
+          <v-text-field
+            v-model="searchQuery"
+            prepend-inner-icon="mdi-magnify"
+            label="Pretraži trenera..."
+            variant="outlined"
+            color="white"
+            density="comfortable"
+            clearable
+            class="text-white"
+          ></v-text-field>
+        </v-col>
+
+        <v-col cols="12" md="4" class="pa-1">
+          <v-select
+            v-model="filterType"
+            :items="['Sve', 'Ime i prezime', 'Specijalnost']"
+            label="Filtriraj po"
+            variant="outlined"
+            color="white"
+            density="comfortable"
+            class="text-white"
+            prepend-inner-icon="mdi-filter-variant"
+          ></v-select>
+        </v-col>
+
+      </v-row>
+
+      <div v-if="loading" class="text-center pa-10">
+        <v-progress-circular indeterminate color="green"></v-progress-circular>
+        <div class="mt-2 text-white">Učitavam trenere...</div>
       </div>
 
-      <v-table hover class="custom-table">
+      <v-table v-else hover class="custom-table">
         <thead>
           <tr>
             <th class="text-center text-white font-weight-bold">#</th>
@@ -47,30 +69,25 @@
             </td>
           </tr>
 
-          <tr v-if="treneri.length === 0 && !loading">
+          <tr v-if="treneri.length === 0">
             <td colspan="3" class="text-center text-grey-lighten-1 py-6">
               Nema trenera koji odgovaraju pretrazi.
             </td>
           </tr>
-
-          <div class="text-center py-4">
-            <v-pagination
-              v-model="page"
-              :length="totalPages"
-              rounded="circle"
-              density="comfortable"
-              color="white"
-            ></v-pagination>
-          </div>
-
-          <v-card-text v-if="loading" class="text-center pa-10">
-            <v-progress-circular indeterminate color="green"></v-progress-circular>
-            <div class="mt-2 text-white">Učitavam trenere...</div>
-          </v-card-text>
         </tbody>
       </v-table>
-    </v-card>
 
+      <div v-if="totalPages > 1 && !loading" class="text-center py-4">
+        <v-pagination
+          v-model="page"
+          :length="totalPages"
+          rounded="circle"
+          density="comfortable"
+          color="white"
+        ></v-pagination>
+      </div>
+
+    </v-card>
   </div>
 </template>
 
@@ -81,26 +98,31 @@ import axios from 'axios'
 const treneri = ref([])
 const page = ref(1)
 const itemPerPage = 10
-const totalPages = ref(1) // Backend će nam reći koliko ukupno ima stranica
+const totalPages = ref(1)
 const searchQuery = ref('')
-const loading = ref(false) // Dodajemo loading stanje za bolji UX
+const loading = ref(false)
 
-// Glavna funkcija za dohvaćanje podataka s backenda
+const filterType = ref('Sve')// Šalje backend-u šta želim filtrirati
+
+let searchTimeout = null
+
+
+// Funkcija za povlačenje podataka sa Flask backend-a
 const dohvatiTrenere = async () => {
   loading.value = true
   try {
-    // Šaljemo parametre kao query string: ?page=1&search=nešto&per_page=10
     const response = await axios.get('http://127.0.0.1:5000/treneri', {
       params: {
         page: page.value,
         per_page: itemPerPage,
-        search: searchQuery.value
+        search: searchQuery.value,
+        tip_filtera: filterType.value
       }
     })
 
-    // Backend treba vratiti objekt koji sadrži listu trenera i ukupan broj stranica
-    treneri.value = response.data.treneri
-    totalPages.value = response.data.ukupnoStranica
+    // Mapiranje podataka sa backenda
+    treneri.value = response.data.treneri || []
+    totalPages.value = response.data.ukupnoStranica || 1
   } catch (error) {
     console.error("Greška pri dohvaćanju trenera:", error)
   } finally {
@@ -108,13 +130,18 @@ const dohvatiTrenere = async () => {
   }
 }
 
-// Kada korisnik upiše nešto u tražilicu, vraćamo na 1. stranicu i povlačimo nove podatke
+// Watcher za pretragu sa ugrađenim debounce-om (čeka 500ms nakon zadnjeg klika)
 watch(searchQuery, () => {
   page.value = 1
-  dohvatiTrenere()
+
+  if (searchTimeout) clearTimeout(searchTimeout)
+
+  searchTimeout = setTimeout(() => {
+    dohvatiTrenere()
+  }, 500)
 })
 
-// Kada korisnik klikne na drugu stranicu u <v-pagination>, povlačimo podatke za tu stranicu
+// Watcher za promjenu stranice (odmah reaguje)
 watch(page, () => {
   dohvatiTrenere()
 })
@@ -125,11 +152,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.stakleni-okvir {
-  border: 1px solid white !important;
+.stakleni-kontejner {
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   background-color: rgba(0, 0, 0, 0.7) !important;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
 }
 
 .custom-table {
@@ -156,8 +184,9 @@ onMounted(() => {
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.border-white-subtle {
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+.uppercase-title {
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 :deep(.v-pagination__item) {

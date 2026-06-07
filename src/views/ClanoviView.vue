@@ -7,18 +7,35 @@
         POPIS ČLANOVA TERETANE
       </v-card-title>
 
-      <div class="px-4 pt-4">
-        <v-text-field
-          v-model="searchQuery"
-          prepend-inner-icon="mdi-magnify"
-          label="Pretraži člana po imenu, treneru ili paketu..."
-          variant="outlined"
-          color="white"
-          density="comfortable"
-          clearable
-          class="text-white"
-        ></v-text-field>
-      </div>
+      <v-row class="px-4 pt-4 ma-0">
+
+        <v-col cols="12" md="8" class="pa-1">
+          <v-text-field
+            v-model="searchQuery"
+            prepend-inner-icon="mdi-magnify"
+            label="Pretraži člana..."
+            variant="outlined"
+            color="white"
+            density="comfortable"
+            clearable
+            class="text-white"
+          ></v-text-field>
+        </v-col>
+
+        <v-col cols="12" md="4" class="pa-1">
+          <v-select
+            v-model="filterType"
+            :items="['Sve', 'Ime člana', 'Trener', 'Paket']"
+            label="Filtriraj po"
+            variant="outlined"
+            color="white"
+            density="comfortable"
+            class="text-white"
+            prepend-inner-icon="mdi-filter-variant"
+          ></v-select>
+        </v-col>
+
+      </v-row>
 
       <v-table hover class="custom-table">
         <thead>
@@ -96,6 +113,8 @@ const totalPages = ref(1) // Backend će nam slati ukupan broj stranica
 const searchQuery = ref('')
 const loading = ref(false)
 
+const filterType = ref('Sve')
+
 // Glavna funkcija za dohvaćanje članova sa backenda
 const dohvatiClanove = async () => {
   loading.value = true
@@ -104,7 +123,8 @@ const dohvatiClanove = async () => {
       params: {
         page: page.value,
         per_page: itemPerPage,
-        search: searchQuery.value
+        search: searchQuery.value,
+        tip_filtera: filterType.value
       }
     })
     clanovi.value = response.data.clanovi
