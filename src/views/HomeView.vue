@@ -136,6 +136,10 @@ const noviClan = ref({
 })
 
 const treneriOpcije = computed(() => {
+  if (!Array.isArray(treneriRaw.value)) {
+    return [{ id: null, prikaz: 'Ne želim trenera (Samostalan trening)' }]
+  }
+
   const lista = treneriRaw.value.map(t => ({
     id: t.id,
     prikaz: `${t.ime} ${t.prezime}`
@@ -152,7 +156,9 @@ const dohvatiPodatke = async () => {
       axios.get('http://127.0.0.1:5000/treneri'),
       axios.get('http://127.0.0.1:5000/paketi')
     ])
-    treneriRaw.value = resTreneri.data
+
+
+    treneriRaw.value = resTreneri.data.treneri || []
     paketi.value = resPaketi.data
   } catch (error) {
     console.error("Greška pri dohvaćanju podataka:", error)
