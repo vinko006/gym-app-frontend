@@ -1,3 +1,5 @@
+<script setup lang="ts">
+</script>
 <template>
   <v-app>
     <v-app-bar flat class="custom-navbar px-4">

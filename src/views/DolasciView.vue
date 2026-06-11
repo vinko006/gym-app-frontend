@@ -126,11 +126,11 @@ const prikazaniDolasci = computed(() => {
 
 const ucitajPodatke = async () => {
   try {
-    const resDolasci = await axios.get('http://127.0.0.1:5000/dolasci')
+    const resDolasci = await axios.get('http://127.0.0.1:5000/dolasci?per_page=1000')
     dolasci.value = resDolasci.data.reverse()
 
     const resClanovi = await axios.get('http://127.0.0.1:5000/clanovi')
-    clanovi.value = resClanovi.data.map(c => ({
+    clanovi.value = resClanovi.data.clanovi.map(c => ({
       id: c.id,
       ime_prezime: `${c.ime} ${c.prezime}`
     }))

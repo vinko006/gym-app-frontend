@@ -130,7 +130,7 @@ const dohvatiTrenere = async () => {
   }
 }
 
-// Watcher za pretragu sa ugrađenim debounce-om (čeka 500ms nakon zadnjeg klika)
+// Watcher za pretragu sa ugrađenim debounce-om
 watch(searchQuery, () => {
   page.value = 1
 
